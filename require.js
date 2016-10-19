@@ -1,8 +1,8 @@
+var require;
 (function() {
   'use strict';
 
-  var globals = typeof window === 'undefined' ? global : window;
-  if (typeof globals.require === 'function') return;
+  if (typeof require === 'function') return;
 
   var modules = {};
   var cache = {};
@@ -31,7 +31,7 @@
   var localRequire = function(path) {
     return function expanded(name) {
       var absolute = expand(dirname(path), name);
-      return globals.require(absolute, path);
+      return require(absolute, path);
     };
   };
 
@@ -52,7 +52,7 @@
     return expandAlias(expand(dirname(name), dep));
   };
 
-  var require = function(name, loaderPath) {
+  var _require = function(name, loaderPath) {
     if (loaderPath == null) loaderPath = '/';
     var path = expandAlias(name);
 
@@ -62,7 +62,7 @@
     throw new Error("Cannot find module '" + name + "' from '" + loaderPath + "'");
   };
 
-  require.alias = function(from, to) {
+  _require.alias = function(from, to) {
     aliases[to] = from;
   };
 
@@ -84,11 +84,11 @@
     }
   };
 
-  require.register = require.define = function(bundle, fn) {
+  _require.register = _require.define = function(bundle, fn) {
     if (typeof bundle === 'object') {
       for (var key in bundle) {
         if (has.call(bundle, key)) {
-          require.register(key, bundle[key]);
+          _require.register(key, bundle[key]);
         }
       }
     } else {
@@ -98,7 +98,7 @@
     }
   };
 
-  require.list = function() {
+  _require.list = function() {
     var list = [];
     for (var item in modules) {
       if (has.call(modules, item)) {
@@ -108,9 +108,9 @@
     return list;
   };
 
-  var hmr = globals._hmr && new globals._hmr(_resolve, require, modules, cache);
-  require._cache = cache;
-  require.hmr = hmr && hmr.wrap;
-  require.brunch = true;
-  globals.require = require;
+  var hmr = typeof _hmr === 'function' && new _hmr(_resolve, _require, modules, cache);
+  _require._cache = cache;
+  _require.hmr = hmr && hmr.wrap;
+  _require.brunch = true;
+  require = _require;
 })();
